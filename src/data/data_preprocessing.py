@@ -79,10 +79,20 @@ def preprocessing(df):
     
     return df
 
+
+
 # major preprocessing
 
 processed_train_data = preprocessing(train_data)
 processed_test_data = preprocessing(test_data)
+
+# Convert any accidental NaNs to empty strings first so string methods
+processed_train_data["CommentText"] = processed_train_data["CommentText"].fillna("")
+processed_test_data["CommentText"] = processed_test_data["CommentText"].fillna("")
+
+# Keep only rows where the text, when stripped of spaces, is NOT empty
+processed_train_data = processed_train_data[processed_train_data["CommentText"].str.strip() != ""]
+processed_test_data = processed_test_data[processed_test_data["CommentText"].str.strip() != ""]
 
 # save files in data folder
 data_path = os.path.join("data", "processed")

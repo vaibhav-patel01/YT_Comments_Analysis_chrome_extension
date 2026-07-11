@@ -31,6 +31,68 @@ stages:
     outs:
     - path: data/processed
       hash: md5
-      md5: a7837d3f9e5f1044ec32fedb181daf86.dir
-      size: 73534377
+      md5: 900d8f11594399d9f54709e71de288ea.dir
+      size: 73530765
       nfiles: 2
+  feature_engineering:
+    cmd: python src/features/feature_engineering.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 900d8f11594399d9f54709e71de288ea.dir
+      size: 73530765
+      nfiles: 2
+    - path: src/data/data_preprocessing.py
+      hash: md5
+      md5: 4d576125c9789bcd269ea19484c70f49
+      size: 3898
+    params:
+      params.yaml:
+        feature_engineering.max_features: 5000
+        feature_engineering.ngram_range:
+        - 1
+        - 3
+    outs:
+    - path: data/interim
+      hash: md5
+      md5: 73b5f294ed2b32513e53465e2e92d5a1.dir
+      size: 108352132
+      nfiles: 2
+    - path: tfidf_vectorizer.pkl
+      hash: md5
+      md5: b2b04b1b5546a1651277d91fe5d83f21
+      size: 184452
+  model_building:
+    cmd: python src/model/model_building.py
+    deps:
+    - path: data/interim
+      hash: md5
+      md5: 73b5f294ed2b32513e53465e2e92d5a1.dir
+      size: 108352132
+      nfiles: 2
+    - path: data/processed
+      hash: md5
+      md5: 900d8f11594399d9f54709e71de288ea.dir
+      size: 73530765
+      nfiles: 2
+    - path: src/data/data_preprocessing.py
+      hash: md5
+      md5: 4d576125c9789bcd269ea19484c70f49
+      size: 3898
+    - path: src/features/feature_engineering.py
+      hash: md5
+      md5: 60e50eee2cd6bf9849cddb84e5edf205
+      size: 1376
+    params:
+      params.yaml:
+        model_building.class_weight: balanced
+        model_building.learning_rate: 0.09611
+        model_building.max_depth: 15
+        model_building.metric: multi_logloss
+        model_building.n_estimators: 417
+        model_building.objective: multiclass
+    outs:
+    - path: model/model.pkl
+      hash: md5
+      md5: 6f283c886e8092ef9e82a43c5ebbdce2
+      size: 4651570

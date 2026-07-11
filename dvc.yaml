@@ -14,3 +14,30 @@ stages:
     - data/raw
     outs:
     - data/processed
+  feature_engineering:
+    cmd: python src/features/feature_engineering.py
+    deps:
+    - src/data/data_preprocessing.py
+    - data/processed
+    params:
+    - feature_engineering.ngram_range
+    - feature_engineering.max_features
+    outs:
+    - data/interim
+    - tfidf_vectorizer.pkl
+  model_building:
+    cmd: python src/model/model_building.py
+    deps:
+    - src/data/data_preprocessing.py
+    - src/features/feature_engineering.py
+    - data/processed
+    - data/interim
+    params:
+    - model_building.learning_rate
+    - model_building.max_depth
+    - model_building.n_estimators
+    - model_building.class_weight
+    - model_building.objective
+    - model_building.metric
+    outs:
+    - model/model.pkl
