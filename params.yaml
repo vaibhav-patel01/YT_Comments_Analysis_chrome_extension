@@ -10,6 +10,8 @@ model_building:
   class_weight : balanced
   objective :  multiclass
   metric: multi_logloss
+model_evaluation:
+  features : Tfidf
   
 
   

@@ -41,3 +41,25 @@ stages:
     - model_building.metric
     outs:
     - model/model.pkl
+  model_evaluation :
+    cmd : python src/model/model_evaluation.py
+    deps:
+    - src/data/data_preprocessing.py
+    - src/features/feature_engineering.py
+    - src/model/model_building.py
+    - data/processed
+    - data/interim
+    - model/model.pkl
+
+    params:
+    - data_ingestion.test_size
+    - model_building.learning_rate
+    - model_building.max_depth
+    - model_building.n_estimators
+    - model_building.class_weight
+    - model_building.objective
+    - model_building.metric
+    - feature_engineering.ngram_range
+    - feature_engineering.max_features
+    - model_evaluation.features
+
