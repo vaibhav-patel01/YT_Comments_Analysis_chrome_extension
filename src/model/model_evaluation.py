@@ -1,11 +1,12 @@
 import os
 import yaml
 import pandas as pd
+import logging
 import json
 import pickle
 import dagshub
-import mlflow
-import mlflow.lightgbm
+import mlflow 
+import mlflow.sklearn
 import plotly.express as px
 from sklearn.metrics import classification_report, accuracy_score,confusion_matrix 
 
@@ -39,6 +40,8 @@ y_test = y_test["Sentiment"]
 with open("model/model.pkl", 'rb') as file2:
     model = pickle.load(file2)
 
+        
+
 # setting up the remote mlflow
 dagshub.init(repo_owner= 'vaibhav-patel01' , repo_name= 'YT_Comments_Analysis_chrome_extension' , mlflow= True)
 
@@ -48,7 +51,7 @@ mlflow.set_tracking_uri("https://dagshub.com/vaibhav-patel01/YT_Comments_Analysi
 mlflow.set_experiment("dvc_pipeline_runs")
 
 
-with mlflow.start_run() :
+with mlflow.start_run() as run :
         # log parameters
         mlflow.log_params({
              "test_size" : test_size,
@@ -73,8 +76,8 @@ with mlflow.start_run() :
         classification_rep = classification_report(y_test, y_pred, output_dict=True)
         for label, metrics in classification_rep.items():
             if isinstance(metrics, dict):
-                for metric, value in metrics.items():
-                    mlflow.log_metric(f"{label}_{metric}", value)
+                for metric_name, value in metrics.items():
+                    mlflow.log_metric(f"{label}_{metric_name}", value)
 
         # Log confusion matrix
         conf_matrix = confusion_matrix(y_test, y_pred)
@@ -87,13 +90,27 @@ with mlflow.start_run() :
             width=800, # Approximate equivalent to figsize=(8, 6)
             height=600
         )
-        mlflow.log_figure(fig, "basline_confusion_matrix.html")
-        # logging model
-        
-        mlflow.lightgbm.log_model(
-            lgb_model=model, 
-            artifact_path="lgbm_model"
+        mlflow.log_figure(fig, "confusion_matrix.html")
+        # log model
+        logged_model = mlflow.sklearn.log_model(
+            sk_model=model, 
+            artifact_path="lgbm_model",
+            skops_trusted_types=[
+                "collections.OrderedDict", 
+                "lightgbm.basic.Booster", 
+                "lightgbm.sklearn.LGBMClassifier"
+            ]
         )
+
+        # Save model information 
+        run_id = run.info.run_id
+        model_info = {
+             "model_uri": logged_model.model_uri,  
+             "run_id": run_id
+        }
+        
+        with open('experiment_info.json', 'w') as file:
+            json.dump(model_info, file, indent=4)
 
 print(accuracy)
 print(classification_report(y_test, y_pred))

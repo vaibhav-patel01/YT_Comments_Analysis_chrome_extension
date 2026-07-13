@@ -62,4 +62,14 @@ stages:
     - feature_engineering.ngram_range
     - feature_engineering.max_features
     - model_evaluation.features
+    outs:
+    - experiment_info.json
+  register_model : 
+    cmd : python src/model/register_model.py
+    deps : 
+    - src/model/register_model.py
+    - experiment_info.json
+    outs:
+    - registration_status.log 
+
 
