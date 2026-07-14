@@ -79,7 +79,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.put("/predict")
+@app.post("/predict")
 def predict_sentiment(data : CommentRequest):
     if not data.comments:
         raise HTTPException(status_code=400, detail="No comments.")

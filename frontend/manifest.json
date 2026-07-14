@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Sentiment Analysis",
+  "version": "1.0",
+  "description": "Fetches a YouTube video's comments and shows a sentiment breakdown.",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": ["tabs"]
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sentiment Reel</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+  <div class="sprocket-strip" aria-hidden="true"></div>
+
+  <header class="app-header">
+    <div class="app-header__mark">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="4" width="22" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M10 9L15.5 12L10 15V9Z" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="app-header__text">
+      <h1>Sentiment Reel</h1>
+      <p id="videoIdLabel" class="app-header__sub">Waiting for a video&hellip;</p>
+    </div>
+  </header>
+
+  <main id="output" class="stage">
+
+    <!-- STATE: not a youtube tab -->
+    <section id="state-invalid" class="panel state hidden">
+      <div class="state-icon state-icon--muted">⦸</div>
+      <p class="state-title">No video here</p>
+      <p class="state-body">Open a YouTube watch page, then reopen this popup.</p>
+    </section>
+
+    <!-- STATE: fetching / analyzing -->
+    <section id="state-loading" class="panel state hidden">
+      <div class="reel-spinner" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <p class="state-title" id="loadingTitle">Fetching comments&hellip;</p>
+      <p class="state-body" id="loadingBody">Pulling the top comments from this video.</p>
+    </section>
+
+    <!-- STATE: no comments -->
+    <section id="state-empty" class="panel state hidden">
+      <div class="state-icon state-icon--muted">◌</div>
+      <p class="state-title">Nothing to read yet</p>
+      <p class="state-body">This video doesn't have any comments.</p>
+    </section>
+
+    <!-- STATE: error -->
+    <section id="state-error" class="panel state hidden">
+      <div class="state-icon state-icon--negative">!</div>
+      <p class="state-title">Couldn't finish the analysis</p>
+      <p class="state-body" id="errorBody">The sentiment API didn't respond. Check that it's running.</p>
+    </section>
+
+    <!-- STATE: results -->
+    <section id="state-results" class="hidden">
+
+      <div class="panel summary-panel">
+        <div class="summary-panel__head">
+          <span class="eyebrow">Breakdown</span>
+          <span class="summary-panel__total" id="totalCount">0 comments</span>
+        </div>
+
+        <div class="sentiment-bar" id="sentimentBar" role="img" aria-label="Sentiment breakdown">
+          <div class="sentiment-bar__segment sentiment-bar__segment--positive" id="segPositive"></div>
+          <div class="sentiment-bar__segment sentiment-bar__segment--neutral" id="segNeutral"></div>
+          <div class="sentiment-bar__segment sentiment-bar__segment--negative" id="segNegative"></div>
+        </div>
+
+        <div class="legend">
+          <div class="legend__item">
+            <span class="legend__dot legend__dot--positive"></span>
+            <span class="legend__label">Positive</span>
+            <span class="legend__value" id="posPercent">0%</span>
+          </div>
+          <div class="legend__item">
+            <span class="legend__dot legend__dot--neutral"></span>
+            <span class="legend__label">Neutral</span>
+            <span class="legend__value" id="neuPercent">0%</span>
+          </div>
+          <div class="legend__item">
+            <span class="legend__dot legend__dot--negative"></span>
+            <span class="legend__label">Negative</span>
+            <span class="legend__value" id="negPercent">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-head">
+        <span class="eyebrow">Top comments</span>
+        <span class="list-head__count" id="listCount">Showing 25</span>
+      </div>
+
+      <ul class="comment-list" id="commentList"></ul>
+
+    </section>
+
+  </main>
+
+  <div class="sprocket-strip" aria-hidden="true"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
