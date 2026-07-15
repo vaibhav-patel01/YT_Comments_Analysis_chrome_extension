@@ -42,11 +42,23 @@ with open("model/model.pkl", 'rb') as file2:
 
         
 
-# setting up the remote mlflow
-dagshub.init(repo_owner= 'vaibhav-patel01' , repo_name= 'YT_Comments_Analysis_chrome_extension' , mlflow= True)
+# Set up DagsHub credentials for MLflow tracking
+dagshub_token = os.getenv("DAGSHUB_PAT")
+if not dagshub_token:
+    raise EnvironmentError("DAGSHUB_PAT environment variable is not set")
 
-mlflow.set_tracking_uri("https://dagshub.com/vaibhav-patel01/YT_Comments_Analysis_chrome_extension.mlflow")
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 
+dagshub_url = "https://dagshub.com"
+repo_owner = 'vaibhav-patel01'
+repo_name = 'YT_Comments_Analysis_chrome_extension'
+
+# Set up MLflow tracking URI
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
+
+
+# mlflow logging
 
 mlflow.set_experiment("dvc_pipeline_runs")
 
