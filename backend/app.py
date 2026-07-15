@@ -3,7 +3,6 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-import pandas as pd
 import regex as re
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -106,7 +105,6 @@ def predict_sentiment(data : CommentRequest):
         # Catch and return any processing errors (e.g., shape mismatches)
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
 
-
 @app.get("/health")
 def health_check():
     return {
@@ -114,3 +112,4 @@ def health_check():
         "model_loaded": model is not None,
         "vectorizer_loaded": vectorizer is not None
     }
+

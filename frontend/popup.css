@@ -9,11 +9,11 @@
   --text-tertiary: #666d79;
   --brand: #f2b84b;
 
-  --positive: #4fb286;
+  --positive: #00FF00;
   --positive-dim: rgba(79, 178, 134, 0.14);
-  --neutral: #8b93a3;
+  --neutral: #91a38b;
   --neutral-dim: rgba(139, 147, 163, 0.14);
-  --negative: #e2664f;
+  --negative: #FF0000;
   --negative-dim: rgba(226, 102, 79, 0.14);
 
   --font-display: 'Space Grotesk', sans-serif;
@@ -279,12 +279,64 @@ html, body {
   color: var(--text-primary);
 }
 
+/* ---------- Stats panel ---------- */
+.stats-panel .stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #0f1216;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
 /* ---------- Comment list ---------- */
 .list-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   padding: 0 2px;
+}
+
+.list-head__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sentiment-filter {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-primary);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+
+.sentiment-filter:focus {
+  outline: 1px solid var(--brand);
 }
 
 .list-head__count {

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Sentiment Analysis",
+  "name": "Sentiment Reel",
   "version": "1.0",
   "description": "Fetches a YouTube video's comments and shows a sentiment breakdown.",
   "action": {

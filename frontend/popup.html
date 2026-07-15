@@ -88,9 +88,31 @@
         </div>
       </div>
 
+      <div class="panel stats-panel">
+        <span class="eyebrow">Comment Stats</span>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-value" id="statUnique">0</span>
+            <span class="stat-label">Unique Commenters</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="statAvgLength">0.0</span>
+            <span class="stat-label">Avg Length (words)</span>
+          </div>
+        </div>
+      </div>
+
       <div class="list-head">
         <span class="eyebrow">Top comments</span>
-        <span class="list-head__count" id="listCount">Showing 25</span>
+        <div class="list-head__controls">
+          <select id="sentimentFilter" class="sentiment-filter" aria-label="Filter comments by sentiment">
+            <option value="all">All</option>
+            <option value="2">Positive</option>
+            <option value="1">Neutral</option>
+            <option value="0">Negative</option>
+          </select>
+          <span class="list-head__count" id="listCount">Showing 25</span>
+        </div>
       </div>
 
       <ul class="comment-list" id="commentList"></ul>

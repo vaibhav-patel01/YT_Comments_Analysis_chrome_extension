@@ -1,4 +1,3 @@
-
 const YT_API_KEY = 'AIzaSyCj7Ri20R97uMNfvvdp4b-hIiufpNRJxj8';
 const SENTIMENT_API_URL = 'http://localhost:8000/predict'; // FastAPI backend
 const MAX_COMMENTS = 500;
@@ -30,8 +29,15 @@ const els = {
   neuPercent: document.getElementById('neuPercent'),
   negPercent: document.getElementById('negPercent'),
   listCount: document.getElementById('listCount'),
-  commentList: document.getElementById('commentList')
+  commentList: document.getElementById('commentList'),
+  statUnique: document.getElementById('statUnique'),
+  statAvgLength: document.getElementById('statAvgLength'),
+  sentimentFilter: document.getElementById('sentimentFilter')
 };
+
+// Holds the full set of predictions (with author info merged in) for the
+// current video, so the filter dropdown can re-render without refetching.
+let currentPredictions = [];
 
 function showState(name) {
   Object.entries(els.states).forEach(([key, el]) => {
@@ -60,26 +66,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     els.videoIdLabel.textContent = videoId;
 
     setLoading('Fetching comments…', 'Pulling the top comments from this video.');
-    const comments = await fetchComments(videoId, YT_API_KEY);
+    const commentData = await fetchComments(videoId, YT_API_KEY);
 
-    if (!comments || comments.length === 0) {
+    if (!commentData || commentData.length === 0) {
       showState('empty');
       return;
     }
 
-    setLoading('Analyzing sentiment…', `Scoring ${comments.length} comments.`);
-    const predictions = await getSentimentPredictions(comments, SENTIMENT_API_URL);
+    setLoading('Analyzing sentiment…', `Scoring ${commentData.length} comments.`);
+    const commentTexts = commentData.map((c) => c.text);
+    const predictions = await getSentimentPredictions(commentTexts, SENTIMENT_API_URL);
 
     if (!predictions) {
       showState('error');
       return;
     }
 
-    renderResults(predictions);
+    // The backend echoes comments back in the same order they were sent,
+    // so we can zip the author info back in by index.
+    const merged = predictions.map((p, i) => ({
+      ...p,
+      author: commentData[i] ? commentData[i].author : 'unknown'
+    }));
+
+    renderResults(merged);
   });
+
+  els.sentimentFilter.addEventListener('change', renderCommentList);
 });
 
 function renderResults(predictions) {
+  currentPredictions = predictions;
+
   const counts = { 0: 0, 1: 0, 2: 0 };
   predictions.forEach((item) => {
     const key = Number(item.sentiment);
@@ -87,11 +105,24 @@ function renderResults(predictions) {
   });
 
   const total = predictions.length;
+  
+  // --- NEW SCORING LOGIC ---
+  const positiveAndNeutral = (counts[1] || 0) + (counts[2] || 0);
+  const ratio = total > 0 ? positiveAndNeutral / total : 0;
+  
+  // Normalize ratio (0 to 1) into a 1 to 10 scale
+  const normalizedScore = (ratio * 9) + 1;
+  
+  // You can log this or bind it to a new HTML element in your popup
+  console.log(`Custom Score: ${normalizedScore.toFixed(1)} / 10`);
+  // -------------------------
+
   const pct = (n) => (total ? (n / total) * 100 : 0);
   const positivePct = pct(counts[2]);
   const neutralPct = pct(counts[1]);
   const negativePct = pct(counts[0]);
 
+  // Now displays the EXACT total comment count
   els.totalCount.textContent = `${total.toLocaleString()} comment${total === 1 ? '' : 's'}`;
 
   // Animate the segmented bar in on the next frame.
@@ -105,8 +136,45 @@ function renderResults(predictions) {
   els.neuPercent.textContent = `${neutralPct.toFixed(1)}%`;
   els.negPercent.textContent = `${negativePct.toFixed(1)}%`;
 
-  const shown = predictions.slice(0, TOP_N_DISPLAYED);
-  els.listCount.textContent = `Showing ${shown.length} of ${total}`;
+  renderStats(predictions);
+
+  els.sentimentFilter.value = 'all';
+  renderCommentList();
+
+  showState('results');
+}
+
+// Computes and displays unique commenters and average comment length
+// for the full result set.
+function renderStats(predictions) {
+  const total = predictions.length;
+
+  const uniqueAuthors = new Set(
+    predictions.map((item) => item.author || 'unknown')
+  ).size;
+
+  const avgLength = total
+    ? predictions.reduce((sum, item) => {
+        const words = (item.comment || '').trim().split(/\s+/).filter(Boolean).length;
+        return sum + words;
+      }, 0) / total
+    : 0;
+
+  els.statUnique.textContent = uniqueAuthors.toLocaleString();
+  els.statAvgLength.textContent = avgLength.toFixed(1);
+}
+
+// Renders the comment list based on the currently selected sentiment
+// filter (all / positive / neutral / negative), capped at TOP_N_DISPLAYED.
+function renderCommentList() {
+  const filterValue = els.sentimentFilter.value;
+  const filtered =
+    filterValue === 'all'
+      ? currentPredictions
+      : currentPredictions.filter((item) => String(item.sentiment) === filterValue);
+
+  const shown = filtered.slice(0, TOP_N_DISPLAYED);
+  els.listCount.textContent = `Showing ${shown.length} of ${filtered.length}`;
   els.commentList.innerHTML = '';
 
   shown.forEach((item) => {
@@ -127,8 +195,6 @@ function renderResults(predictions) {
     li.appendChild(tag);
     els.commentList.appendChild(li);
   });
-
-  showState('results');
 }
 
 // Fetch top-level comments for a video, paging until MAX_COMMENTS or the end.
@@ -147,7 +213,14 @@ async function fetchComments(videoId, apiKey) {
 
       if (data.items) {
         data.items.forEach((item) => {
-          comments.push(item.snippet.topLevelComment.snippet.textOriginal);
+          const snippet = item.snippet.topLevelComment.snippet;
+          comments.push({
+            text: snippet.textOriginal,
+            author:
+              (snippet.authorChannelId && snippet.authorChannelId.value) ||
+              snippet.authorDisplayName ||
+              'unknown'
+          });
         });
       }
 
