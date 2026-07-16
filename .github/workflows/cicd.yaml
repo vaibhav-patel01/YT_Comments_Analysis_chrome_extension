@@ -74,3 +74,25 @@ jobs:
           DAGSHUB_PAT : ${{ secrets.DAGSHUB_PAT }}
         run: |
           pytest scripts/model_test.py
+# push the image to docker hub 
+      - name: Login to AWS ECR
+        if: success()
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 532918215945.dkr.ecr.eu-north-1.amazonaws.com
+
+      - name: Build Docker image
+        if: success()
+        run: |
+          docker build -t vaibhavpatel01project1 .
+
+      - name: Tag Docker image
+        if: success()
+        run: |
+          docker tag vaibhavpatel01project1:latest 532918215945.dkr.ecr.eu-north-1.amazonaws.com/vaibhavpatel01project1:latest
+
+      - name: Push Docker image to AWS ECR
+        if: success()
+        run: |
+          docker push 532918215945.dkr.ecr.eu-north-1.amazonaws.com/vaibhavpatel01project1:latest

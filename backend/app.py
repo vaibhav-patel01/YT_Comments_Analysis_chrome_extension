@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import regex as re
-from mlflow.tracking import MlflowClient
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import pickle
@@ -27,7 +26,7 @@ repo_name = 'YT_Comments_Analysis_chrome_extension'
 mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 
 model_name = "YT_comments_chrome_plugin"
-model_uri = f"models:/{model_name}/@production"
+model_uri = f"models:/{model_name}@production"
 model = mlflow.sklearn.load_model(model_uri)
 
 # load the vectorizer
