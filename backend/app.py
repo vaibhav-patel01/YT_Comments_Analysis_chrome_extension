@@ -4,27 +4,30 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import regex as re
+from mlflow.tracking import MlflowClient
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import pickle
 import mlflow
 import dagshub
+import os
 
-dagshub.init(
-    repo_owner= 'vaibhav-patel01' ,
-    repo_name= 'YT_Comments_Analysis_chrome_extension' ,
-    mlflow= True
-)
+dagshub_token = os.getenv("DAGSHUB_PAT")
+if not dagshub_token:
+    raise EnvironmentError("DAGSHUB_PAT environment variable is not set")
 
-mlflow.set_tracking_uri("https://dagshub.com/vaibhav-patel01/YT_Comments_Analysis_chrome_extension.mlflow")
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 
-# load the model
+dagshub_url = "https://dagshub.com"
+repo_owner = 'vaibhav-patel01'
+repo_name = 'YT_Comments_Analysis_chrome_extension'
+
+# Set up MLflow tracking URI
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 
 model_name = "YT_comments_chrome_plugin"
-model_version = '2'
-
-model_uri = f"models:/{model_name}/{model_version}"
-
+model_uri = f"models:/{model_name}/@production"
 model = mlflow.sklearn.load_model(model_uri)
 
 # load the vectorizer
