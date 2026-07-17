@@ -79,6 +79,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/")
+def home():
+    return {
+        "status": "success",
+        "message": "API is up and running."
+    }
+
 
 @app.post("/predict")
 def predict_sentiment(data : CommentRequest):
