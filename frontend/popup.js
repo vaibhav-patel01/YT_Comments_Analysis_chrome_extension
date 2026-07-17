@@ -1,5 +1,5 @@
 const YT_API_KEY = 'AIzaSyCj7Ri20R97uMNfvvdp4b-hIiufpNRJxj8';
-const SENTIMENT_API_URL = 'http://localhost:8000/predict'; // FastAPI backend
+const SENTIMENT_API_URL = 'http://my-elb-1203621984.eu-north-1.elb.amazonaws.com/predict'; // FastAPI backend
 const MAX_COMMENTS = 500;
 const TOP_N_DISPLAYED = 50;
 
